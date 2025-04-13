@@ -36,6 +36,11 @@ app.get("/view/:folderName", (req, res) => {
   res.redirect(`https://drive.google.com/drive/folders/${folderId}`); // Send them to the correct folder.
 });
 
+// Redirect to CDO's LINKTREE
+app.get("/linktree", (req, res) => {
+  res.redirect(`https://linktr.ee/cosplaydayoutsevilla`);
+});
+
 // 🔐 We can use this password to make sure only the right people can add or change redirects.
 const AUTH_SECRET = process.env.REDIRECT_API_SECRET || "secret123";
 
