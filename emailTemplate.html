@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <title>Fotografía CDO</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f1fdf4;
+        color: #2e5947;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        color: #34a853;
+      }
+
+      .header img {
+        max-width: 150px;
+        margin-bottom: 20px;
+      }
+
+      .signature {
+        margin-top: 30px;
+        text-align: center;
+      }
+
+      .signature img {
+        max-width: 200px;
+      }
+
+      .footer {
+        font-size: 1em;
+        margin-top: 20px;
+        color: #2e5947;
+        text-align: center;
+      }
+
+      a {
+        color: #34a853;
+        text-decoration: none;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="https://i.imgur.com/HFgSdkw.png" alt="Cosplay Day Out Sevilla Logo">
+        <h2>¡Hola, {{recipientName}}! 😊</h2>
+      </div>
+
+      <p>
+        Nos complace comunicarte que aquí están tus fotos del photocall de
+        <strong>Cosplay Day Out Sevilla</strong>, en
+        <strong>FicZone Granada 2025</strong>.
+      </p>
+
+      <p>
+        Te las hemos subido en esta carpeta de Google Drive. Esperamos que
+        las disfrutes. ¡Vaciaremos las fotos de nuestros servidores en 7 días
+        naturales, así que no lo dejes pasar!
+      </p>
+
+      <a href="{{driveLink}}">Haz clic aquí para ver tus fotos.</a>
+
+      <p>
+        Si las compartes en redes sociales, te animamos a etiquetar a nuestro
+        fotógrafo
+        <strong>{{photographerName}}</strong>
+        (<strong>{{photographerHandle}}</strong>) y a usar las etiquetas
+        <strong>#FicZone2025</strong> y <strong>#CDOfotoestudio</strong>. ¡Nos
+        ayudarás mucho con ese detalle!
+      </p>
+
+      <p>
+        Desde CDO queremos darte las gracias por participar en nuestro photocall
+        y esperamos verte de nuevo en futuros eventos. Te dejamos aquí nuestro
+        <a href="https://linktr.ee/cosplaydayoutsevilla" target="_blank" rel="noopener"
+          >LinkTree</a>
+        para que nos conozcas mejor. 💚
+      </p>
+
+      <div class="footer">
+        - Cosplay Day Out Sevilla (@cdosevilla en Instagram)
+      </div>
+    </div>
+  </body>
+</html>

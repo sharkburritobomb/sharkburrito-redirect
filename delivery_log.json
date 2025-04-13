@@ -1,0 +1,100 @@
+[
+  {
+    "timestamp": "2025-04-13T11:39:18.468Z",
+    "modelNumber": "1",
+    "recipient": {
+      "name": "Angel",
+      "email": "angmatalv@gmail.com"
+    },
+    "photographer": {
+      "name": "ÁNGEL",
+      "handle": "@sharkburrito"
+    },
+    "status": "failed",
+    "message": "File not found: 1."
+  },
+  {
+    "timestamp": "2025-04-13T12:01:13.445Z",
+    "modelNumber": "1",
+    "recipient": {
+      "name": "Angel",
+      "email": "angmatalv@gmail.com"
+    },
+    "photographer": {
+      "name": "ÁNGEL",
+      "handle": "@sharkburrito"
+    },
+    "status": "failed",
+    "message": "folderName is not defined"
+  },
+  {
+    "timestamp": "2025-04-13T12:04:34.502Z",
+    "modelNumber": "1",
+    "recipient": {
+      "name": "Angel",
+      "email": "angmatalv@gmail.com"
+    },
+    "photographer": {
+      "name": "ÁNGEL",
+      "handle": "@sharkburrito"
+    },
+    "status": "success",
+    "message": "{\"data\":{\"id\":\"08765eca-724a-4e77-885b-e2fed7a21935\"},\"error\":null}"
+  },
+  {
+    "timestamp": "2025-04-13T12:13:46.459Z",
+    "modelNumber": "1",
+    "recipient": {
+      "name": "Angel",
+      "email": "angmatalv@gmail.com"
+    },
+    "photographer": {
+      "name": "ÁNGEL",
+      "handle": "@sharkburrito"
+    },
+    "status": "failed",
+    "message": "redirectMapPath is not defined"
+  },
+  {
+    "timestamp": "2025-04-13T12:15:21.304Z",
+    "modelNumber": "1",
+    "recipient": {
+      "name": "Angel",
+      "email": "angmatalv@gmail.com"
+    },
+    "photographer": {
+      "name": "ÁNGEL",
+      "handle": "@sharkburrito"
+    },
+    "status": "success",
+    "message": "{\"data\":{\"id\":\"34549692-f861-4c5a-b940-fbf88541168d\"},\"error\":null}"
+  },
+  {
+    "timestamp": "2025-04-13T12:16:37.699Z",
+    "modelNumber": "1",
+    "recipient": {
+      "name": "Angel",
+      "email": "angmatalv@gmail.com"
+    },
+    "photographer": {
+      "name": "ÁNGEL",
+      "handle": "@sharkburrito"
+    },
+    "status": "success",
+    "message": "{\"data\":{\"id\":\"dff0da83-a978-4959-b852-7ac38336dae9\"},\"error\":null}"
+  },
+  {
+    "timestamp": "2025-04-13T12:19:54.151Z",
+    "modelNumber": "1",
+    "recipient": {
+      "name": "Angel",
+      "email": "angmatalv@gmail.com"
+    },
+    "photographer": {
+      "name": "ÁNGEL",
+      "handle": "@sharkburrito"
+    },
+    "status": "success",
+    "message": "{\"data\":{\"id\":\"02d11436-96ba-47d7-a0f9-291299873f9b\"},\"error\":null}"
+  }
+]
