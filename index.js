@@ -5,6 +5,7 @@ const readline = require("readline");
 const { google } = require("googleapis");
 const { Resend } = require("resend");
 const { exec } = require("child_process");
+const axios = require("axios"); // 🔁 Add this at the top of your script
 
 // Init Resend API
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -134,7 +135,6 @@ function askForFolder() {
       }
 
       try {
-
         // Get the email address, model name and row index from the Google Sheet
         const { email, name, rowIndex } = await getRecipientData(folderNumber);
 
@@ -174,7 +174,6 @@ function askForFolder() {
 // Also declare the path to the JSON file that handles redirects (redirects to our own domain help prevent spam filtering)
 const redirectMapPath = path.join(__dirname, "redirects.json");
 async function createDriveFolder(folderName) {
-
   // Specify that a folder will be created
   const fileMetadata = {
     name: folderName,
@@ -207,18 +206,31 @@ async function createDriveFolder(folderName) {
   redirectMap[folderName] = folderId;
   fs.writeFileSync(redirectMapPath, JSON.stringify(redirectMap, null, 2));
 
+const REDIRECT_SERVER_URL = "https://mail.sharkburrito.com/update";
+
+// Push to live server
+try {
+  await axios.post(REDIRECT_SERVER_URL, {
+    folderName,
+    folderId,
+    secret: process.env.REDIRECT_API_SECRET, // store this in your .env!
+  });
+  console.log(`🌐 Redirect uploaded to remote server: /view/${folderName}`);
+} catch (err) {
+  console.error("❌ Failed to update remote redirect:", err.message);
+}
+
+
   // Return both the URL and folder ID
   return {
     driveRawUrl: `https://drive.google.com/drive/folders/${folderId}`,
-    convertedUrl: `https://mail.sharkburrito.com/view/${encodeURIComponent(folderName)}`, //FOR PRODUCTION
+    convertedUrl: `https://mail.sharkburrito.com/view/${encodeURIComponent(folderName)}`, // FOR PRODUCTION
     //convertedUrl: `http://localhost:3000/view/${encodeURIComponent(folderName)}`, // FOR TESTING
   };
 }
 
-
 // Upload the specific model's pictures to the Google Drive folder that will be created
 async function uploadImagesToDrive(folderName, folderPath, imageFiles) {
-
   // Create the folder
   console.log(`📁 Creando carpeta en Drive para el modelo ${folderName}...`);
   const driveFolder = await createDriveFolder(folderName);
@@ -268,7 +280,6 @@ function hexToRgbObject(hex) {
 
 // Function to color a row in the sheet
 async function colorSheetRow(rowIndex, color) {
-
   const client = await auth.getClient();
   const sheets = google.sheets({ version: "v4", auth: client });
 
@@ -297,8 +308,6 @@ async function colorSheetRow(rowIndex, color) {
     },
   });
 }
-
-
 
 // Write to a JSON file the result of the delivery
 function logDelivery({
@@ -382,12 +391,29 @@ async function sendEmail(
 
     const fromEmail = `Fotografía CDO <${process.env.RESEND_FROM}>`;
 
+    const plainTextTemplate = `
+      ¡Hola, ${recipientName}! 😊
+
+      Nos complace comunicarte que aquí están tus fotos del photocall de Cosplay Day Out Sevilla, en FicZone Granada 2025.
+
+      Te las hemos subido en esta carpeta de Google Drive. Esperamos que las disfrutes. ¡Vaciaremos las fotos de nuestros servidores en 7 días naturales, así que no lo dejes pasar!
+
+      Haz clic aquí para ver tus fotos: ${driveLink}
+
+      Si las compartes en redes sociales, te animamos a etiquetar a nuestro fotógrafo ${photographerName} (${photographerHandle}) y a usar las etiquetas #FicZone2025 y #CDOfotoestudio. ¡Nos ayudarás mucho con ese detalle!
+
+      Desde CDO queremos darte las gracias por participar en nuestro photocall y esperamos verte de nuevo en futuros eventos. Te dejamos aquí nuestro LinkTree para que nos conozcas mejor: https://mail.sharkburrito.com/linktree
+
+      - Cosplay Day Out Sevilla (@cdosevilla en Instagram)
+      `;
+
     const emailResponse = await resend.emails.send({
       from: fromEmail,
       to: recipientEmail,
       subject: `¡Aquí están tus fotos de FicZone 2025, ${recipientName}!`,
       html: htmlTemplate,
-      attachments: formattedAttachments,
+      text: plainTextTemplate,
+      //attachments: formattedAttachments,
     });
 
     console.log("✅ Email enviado con éxito: ", emailResponse);
@@ -463,7 +489,34 @@ async function uploadAndSendEmail(
   }
 }
 
+async function updateRedirects() {
+  const filePath = path.resolve("redirects.json");
 
+  // Check if file exists and has at least one line
+  if (!fs.existsSync(filePath)) {
+    console.log("redirects.json does not exist.");
+    return;
+  }
+
+  const fileContents = fs.readFileSync(filePath, "utf8").trim();
+  if (!fileContents || fileContents.split(/\r?\n/).length === 0) {
+    console.log("redirects.json is empty or has no lines.");
+    return;
+  }
+
+  const savedRedirects = JSON.parse(fileContents);
+
+  for (const [folderName, folderId] of Object.entries(savedRedirects)) {
+    await axios.post("https://mail.sharkburrito.com/update", {
+      folderName,
+      folderId,
+      secret: process.env.REDIRECT_API_SECRET,
+    });
+  }
+
+  console.log("🌐 redirects.json updated on Render server.");
+}
 
 // Start
+updateRedirects();
 askForPhotographer();
