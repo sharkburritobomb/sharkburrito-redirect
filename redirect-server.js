@@ -54,6 +54,18 @@ app.get("/view/:folderName", async (req, res) => {
   }
 });
 
+// API to check if a folder exists
+app.get("/exists/:folderName", async (req, res) => {
+  try {
+    const folderId = await getRedirect(req.params.folderName);
+    if (!folderId) return res.status(404).send("Not found");
+    res.json({ folderId });
+  } catch (err) {
+    console.error("Error checking folder existence:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 // Redirect to Linktree
 app.get("/linktree", (req, res) => {
   res.redirect("https://linktr.ee/cosplaydayoutsevilla");
