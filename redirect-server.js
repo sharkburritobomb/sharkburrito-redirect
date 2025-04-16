@@ -1,78 +1,86 @@
 // We are using a tool called Express to help us build a simple web server.
 const express = require("express");
-// We need this to read and write files on our computer.
-const fs = require("fs");
-// This helps us work with file paths in a smart way.
-const path = require("path");
+const { Pool } = require("pg");
+require("dotenv").config();
 
-// Let's create our web server using Express!
 const app = express();
-// This sets the port number the server will run on. If there's a setting in the computer, use that, otherwise use 3000.
 const port = process.env.PORT || 3000;
-
-// This line lets our server understand data that's sent in JSON format (like from an app or website).
-app.use(express.json());
-
-// This tells us where our file with all the saved redirects is located.
-const mapFile = path.join(__dirname, "redirects.json");
-
-// 📦 When the server starts, try to load the saved redirects from the file.
-let redirects = {};
-if (fs.existsSync(mapFile)) {
-  // Read the file and turn the JSON text into an object we can use in code.
-  redirects = JSON.parse(fs.readFileSync(mapFile, "utf8"));
-}
-
-// 💾 This function saves the redirects to the file so we don't lose them when the server restarts.
-function saveRedirects() {
-  fs.writeFileSync(mapFile, JSON.stringify(redirects, null, 2));
-}
-
-// 📬 This handles GET requests to /view/modelNumber
-// If someone visits this link, we'll check if there's a matching folder and send them to Google Drive.
-app.get("/view/:folderName", (req, res) => {
-  const folderId = redirects[req.params.folderName]; // Grab the ID of the folder using the name they gave.
-  if (!folderId) return res.status(404).send("Model folder not found."); // If we can't find it, say it's not found.
-  res.redirect(`https://drive.google.com/drive/folders/${folderId}`); // Send them to the correct folder.
-});
-
-// Redirect to CDO's LINKTREE
-app.get("/linktree", (req, res) => {
-  res.redirect(`https://linktr.ee/cosplaydayoutsevilla`);
-});
-
-// 🔐 We can use this password to make sure only the right people can add or change redirects.
 const AUTH_SECRET = process.env.REDIRECT_API_SECRET || "secret123";
 
-// 🛠 This handles POST requests to /update
-// It's used to add a new folder link or update an old one.
-app.post("/update", (req, res) => {
+// Parse JSON request bodies
+app.use(express.json());
+
+// PostgreSQL pool setup
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+// Ensure the redirects table exists
+(async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS redirects (
+      folder_name TEXT PRIMARY KEY,
+      folder_id TEXT NOT NULL
+    );
+  `);
+})();
+
+// Function to fetch folderId from DB
+async function getRedirect(folderName) {
+  const res = await pool.query(
+    "SELECT folder_id FROM redirects WHERE folder_name = $1",
+    [folderName]
+  );
+  return res.rows[0]?.folder_id || null;
+}
+
+// Function to insert or update redirect in DB
+async function setRedirect(folderName, folderId) {
+  await pool.query(
+    `INSERT INTO redirects (folder_name, folder_id)
+     VALUES ($1, $2)
+     ON CONFLICT (folder_name) DO UPDATE SET folder_id = EXCLUDED.folder_id`,
+    [folderName, folderId]
+  );
+}
+
+// GET redirect
+app.get("/view/:folderName", async (req, res) => {
+  try {
+    const folderId = await getRedirect(req.params.folderName);
+    if (!folderId) return res.status(404).send("Model folder not found.");
+    res.redirect(`https://drive.google.com/drive/folders/${folderId}`);
+  } catch (err) {
+    console.error("Error fetching redirect:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+// Redirect to Linktree
+app.get("/linktree", (req, res) => {
+  res.redirect("https://linktr.ee/cosplaydayoutsevilla");
+});
+
+// POST to add or update redirect
+app.post("/update", async (req, res) => {
   const { folderName, folderId, secret } = req.body;
 
-  // If they didn't send the right secret password, don't let them update anything.
-  if (secret !== AUTH_SECRET) {
-    return res.status(401).send("Unauthorized");
+  if (secret !== AUTH_SECRET) return res.status(401).send("Unauthorized");
+  if (!folderName || !folderId) return res.status(400).send("Missing folderName or folderId");
+
+  try {
+    await setRedirect(folderName, folderId);
+    res.send("✅ Redirect updated");
+  } catch (err) {
+    console.error("Error saving redirect:", err);
+    res.status(500).send("Failed to save redirect");
   }
-
-  // If they forgot to send either the folder name or ID, tell them something is missing.
-  if (!folderName || !folderId) {
-    return res.status(400).send("Missing folderName or folderId");
-  }
-
-  // Save the folder name and ID in our memory.
-  redirects[folderName] = folderId;
-  saveRedirects(); // Save the new info to the file.
-
-  res.send("✅ Redirect updated"); // Let them know it worked.
 });
 
-// 🟢 Start the server and let us know it's running.
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
-});
-
-// 📊 This is just a little check to make sure the server is working.
-// If someone visits /status, it will say it's running.
+// Health check endpoint
 app.get("/status", (req, res) => {
   res.send("🟢 Redirect server is running");
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`🚀 Server running.`);
 });
